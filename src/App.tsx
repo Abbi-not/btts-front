@@ -18,6 +18,7 @@ import Booking from "@/pages/passenger/Booking";
 import MyTickets from "@/pages/passenger/MyTickets";
 import TrackBus from "@/pages/passenger/TrackBus";
 import Feedback from "@/pages/passenger/Feedback";
+import PaymentResult from "@/pages/passenger/PaymentResult"; // ✅ ADD THIS
 
 import DriverDashboard from "@/pages/driver/DriverDashboard";
 
@@ -42,23 +43,118 @@ const App = () => (
               <Route path="/register" element={<Register />} />
 
               {/* Passenger */}
-              <Route path="/dashboard" element={<ProtectedRoute roles={["passenger"]}><Dashboard /></ProtectedRoute>} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute roles={["passenger"]}>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/trips" element={<Trips />} />
-              <Route path="/booking/:tripId" element={<ProtectedRoute roles={["passenger"]}><Booking /></ProtectedRoute>} />
-              <Route path="/my-tickets" element={<ProtectedRoute roles={["passenger"]}><MyTickets /></ProtectedRoute>} />
-              <Route path="/tracking/:tripId" element={<ProtectedRoute roles={["passenger"]}><TrackBus /></ProtectedRoute>} />
-              <Route path="/feedback" element={<ProtectedRoute roles={["passenger"]}><Feedback /></ProtectedRoute>} />
+              <Route
+                path="/booking/:tripId"
+                element={
+                  <ProtectedRoute roles={["passenger"]}>
+                    <Booking />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-tickets"
+                element={
+                  <ProtectedRoute roles={["passenger"]}>
+                    <MyTickets />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* ✅ THIS IS THE CRITICAL ADD */}
+              <Route
+                path="/payment-result"
+                element={
+                  <ProtectedRoute roles={["passenger"]}>
+                    <PaymentResult />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/tracking/:tripId"
+                element={
+                  <ProtectedRoute roles={["passenger"]}>
+                    <TrackBus />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/feedback"
+                element={
+                  <ProtectedRoute roles={["passenger"]}>
+                    <Feedback />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Driver */}
-              <Route path="/driver/dashboard" element={<ProtectedRoute roles={["driver"]}><DriverDashboard /></ProtectedRoute>} />
-              <Route path="/driver/track" element={<ProtectedRoute roles={["driver"]}><TrackBus /></ProtectedRoute>} />
-              <Route path="/driver/notifications" element={<ProtectedRoute roles={["driver"]}><DriverDashboard /></ProtectedRoute>} />
+              <Route
+                path="/driver/dashboard"
+                element={
+                  <ProtectedRoute roles={["driver"]}>
+                    <DriverDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/driver/track"
+                element={
+                  <ProtectedRoute roles={["driver"]}>
+                    <TrackBus />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/driver/notifications"
+                element={
+                  <ProtectedRoute roles={["driver"]}>
+                    <DriverDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Admin */}
-              <Route path="/admin/dashboard" element={<ProtectedRoute roles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/buses" element={<ProtectedRoute roles={["admin"]}><ManageBuses /></ProtectedRoute>} />
-              <Route path="/admin/routes" element={<ProtectedRoute roles={["admin"]}><ManageRoutes /></ProtectedRoute>} />
-              <Route path="/admin/trips" element={<ProtectedRoute roles={["admin"]}><ManageTrips /></ProtectedRoute>} />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/buses"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <ManageBuses />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/routes"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <ManageRoutes />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/trips"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <ManageTrips />
+                  </ProtectedRoute>
+                }
+              />
 
               <Route path="*" element={<NotFound />} />
             </Route>

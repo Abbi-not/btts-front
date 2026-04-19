@@ -6,6 +6,7 @@ import { toast } from "sonner";
 const MyTickets = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
+  const [payingId, setPayingId] = useState<string | null>(null);
 
   const fetchTickets = () => {
     setLoading(true);
@@ -13,7 +14,6 @@ const MyTickets = () => {
     ticketService
       .list()
       .then((data) => {
-        console.log("TICKETS DATA:", data); // 🔥 DEBUG
         setTickets(data);
       })
       .catch(() => toast.error("Failed to load tickets"))
@@ -28,12 +28,26 @@ const MyTickets = () => {
     try {
       await ticketService.cancel(id);
       toast.success("Ticket cancelled");
-
-      // remove or refresh
       setTickets((prev) => prev.filter((t) => t.id !== id));
     } catch (err: any) {
-      console.log("CANCEL ERROR:", err.response?.data);
       toast.error("Failed to cancel");
+    }
+  };
+
+  // ✅ NEW: PAY FUNCTION
+  const handlePay = async (ticketId: string) => {
+    try {
+      setPayingId(ticketId);
+
+      const res = await ticketService.pay(ticketId);
+
+      // 🔥 redirect to payment gateway
+      window.location.href = res.data.checkout_url;
+    } catch (err: any) {
+      console.log(err.response?.data);
+      toast.error("Failed to start payment");
+    } finally {
+      setPayingId(null);
     }
   };
 
@@ -67,14 +81,34 @@ const MyTickets = () => {
                   ? new Date(t.departure_time).toLocaleString()
                   : "No time"}
               </p>
+
+              {/* ✅ OPTIONAL: show status */}
+              <p className="text-xs mt-1">
+                Status:{" "}
+                <span className="font-medium">
+                  {t.payment_status || "UNPAID"}
+                </span>
+              </p>
             </div>
 
-            <Button
-              variant="destructive"
-              onClick={() => cancelTicket(t.id)}
-            >
-              Cancel
-            </Button>
+            <div className="flex gap-2">
+              {/* ✅ SHOW PAY ONLY IF NOT PAID */}
+              {t.payment_status !== "PAID" && (
+                <Button
+                  onClick={() => handlePay(t.id)}
+                  disabled={payingId === t.id}
+                >
+                  {payingId === t.id ? "Processing..." : "Pay"}
+                </Button>
+              )}
+
+              <Button
+                variant="destructive"
+                onClick={() => cancelTicket(t.id)}
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         ))}
       </div>

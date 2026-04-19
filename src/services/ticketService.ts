@@ -32,4 +32,10 @@ export const ticketService = {
     const { data } = await api.patch(`/passenger/tickets/${id}/cancel/`);
     return data;
   },
+
+  pay: (ticketId: string) =>
+    api.post(`/passenger/tickets/${ticketId}/pay/`),
+
+  verifyPayment: (ticketId: string) =>
+    api.post(`/passenger/tickets/${ticketId}/payment/verify/`),
 };
