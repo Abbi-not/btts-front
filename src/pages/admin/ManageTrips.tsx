@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, X, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { tripService, Trip } from "@/services/tripService";
@@ -36,6 +36,7 @@ const ManageTrips = () => {
   const [driverId, setDriverId] = useState("");
   const [departureTime, setDepartureTime] = useState("");
   const [arrivalTime, setArrivalTime] = useState("");
+  const [fare, setFare] = useState(""); // <-- Add fare state
 
   const fetchAll = async () => {
     setLoading(true);
@@ -45,7 +46,7 @@ const ManageTrips = () => {
           tripService.adminList(),
           busService.adminList(),
           routeService.adminList(),
-          api.get("/auth/users/?role=DRIVER"), // must exist in backend
+          api.get("/auth/users/?role=DRIVER"),
         ]);
 
       setTrips(tripsData);
@@ -72,7 +73,8 @@ const ManageTrips = () => {
         route: routeId,
         driver: driverId,
         departure_time: departureTime,
-        arrival_time: arrivalTime, 
+        arrival_time: arrivalTime,
+        fare: fare, // <-- Send fare
       });
 
       toast.success("Trip added!");
@@ -83,6 +85,7 @@ const ManageTrips = () => {
       setDriverId("");
       setDepartureTime("");
       setArrivalTime("");
+      setFare(""); // <-- Reset fare
 
       fetchAll();
     } catch (err: any) {
@@ -171,6 +174,17 @@ const ManageTrips = () => {
               ))}
             </select>
 
+            {/* FARE */}
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Fare (ETB)"
+              value={fare}
+              onChange={(e) => setFare(e.target.value)}
+              required
+            />
+
             {/* TIME */}
             <input
               type="datetime-local"
@@ -180,10 +194,10 @@ const ManageTrips = () => {
             />
 
             <input
-               type="datetime-local"
-                value={arrivalTime}
-                onChange={(e) => setArrivalTime(e.target.value)}
-                required
+              type="datetime-local"
+              value={arrivalTime}
+              onChange={(e) => setArrivalTime(e.target.value)}
+              required
             />
 
             <Button type="submit">Save</Button>
@@ -220,7 +234,6 @@ const ManageTrips = () => {
                 </TableCell>
 
                 <TableCell>
-                  {/* fallback if backend doesn't expand */}
                   {t.driver}
                 </TableCell>
 

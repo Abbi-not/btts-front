@@ -1,36 +1,69 @@
+// src/pages/PaymentResult.tsx
+
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { ticketService } from "@/services/ticketService";
+import { useSearchParams, useNavigate } from "react-router-dom";
+
+import { verifyPayment } from "../../services/paymentService";
+
+type PaymentState =
+  | "VERIFYING"
+  | "PAID"
+  | "FAILED"
+  | "TIMEOUT";
 
 const PaymentResult = () => {
-  const [params] = useSearchParams();
-  const ticketId = params.get("ticket_id");
+  const [searchParams] = useSearchParams();
 
-  const [status, setStatus] = useState("VERIFYING");
+  const navigate = useNavigate();
+
+  const ticketId = searchParams.get("ticket");
+
+  const [status, setStatus] =
+    useState<PaymentState>("VERIFYING");
+
+  const [message, setMessage] = useState(
+    "Verifying payment..."
+  );
 
   useEffect(() => {
-    if (!ticketId) return;
+    if (!ticketId) {
+      setStatus("FAILED");
+      setMessage("Missing ticket ID.");
+      return;
+    }
 
     let attempts = 0;
 
     const interval = setInterval(async () => {
       try {
-        const res = await ticketService.verifyPayment(ticketId);
+        attempts++;
 
-        const s = res.data.status;
+        const payment = await verifyPayment(ticketId);
 
-        if (s === "PAID" || s === "FAILED") {
-          setStatus(s);
+        if (payment.status === "PAID") {
+          setStatus("PAID");
+          setMessage("Payment successful.");
+
+          clearInterval(interval);
+          return;
+        }
+
+        if (payment.status === "FAILED") {
+          setStatus("FAILED");
+          setMessage("Payment failed.");
+
+          clearInterval(interval);
+          return;
+        }
+
+        if (attempts >= 12) {
+          setStatus("TIMEOUT");
+          setMessage("Verification timed out.");
+
           clearInterval(interval);
         }
-      } catch (err) {
-        console.log(err);
-      }
-
-      attempts++;
-      if (attempts > 12) {
-        clearInterval(interval);
-        setStatus("TIMEOUT");
+      } catch (error) {
+        console.error(error);
       }
     }, 5000);
 
@@ -38,13 +71,35 @@ const PaymentResult = () => {
   }, [ticketId]);
 
   return (
-    <div className="text-center py-20">
-      <h1 className="text-2xl font-bold mb-4">Payment Status</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md text-center">
+        <h1 className="text-2xl font-bold mb-4">
+          Payment Status
+        </h1>
 
-      {status === "VERIFYING" && <p>Checking payment...</p>}
-      {status === "PAID" && <p className="text-green-600">Payment successful</p>}
-      {status === "FAILED" && <p className="text-red-600">Payment failed</p>}
-      {status === "TIMEOUT" && <p>Verification timeout. Refresh.</p>}
+        <p className="text-gray-700 mb-6">
+          {message}
+        </p>
+
+        {status === "PAID" && (
+          <button
+            onClick={() => navigate("/my-tickets")}
+            className="bg-green-600 text-white px-5 py-2 rounded-lg"
+          >
+            Go To Tickets
+          </button>
+        )}
+
+        {(status === "FAILED" ||
+          status === "TIMEOUT") && (
+          <button
+            onClick={() => navigate("/")}
+            className="bg-red-600 text-white px-5 py-2 rounded-lg"
+          >
+            Return Home
+          </button>
+        )}
+      </div>
     </div>
   );
 };

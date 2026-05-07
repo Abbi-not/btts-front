@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { tripService, Trip } from "@/services/tripService";
 import { ticketService } from "@/services/ticketService";
 import { seatService, Seat } from "@/services/seatService";
+import { initializePayment } from "@/services/paymentService";
 
 const Booking = () => {
   const { tripId } = useParams();
@@ -16,6 +17,8 @@ const Booking = () => {
 
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState(false);
+  const [ticketId, setTicketId] = useState<string | null>(null);
+  const [paying, setPaying] = useState(false);
 
   useEffect(() => {
     if (!tripId) return;
@@ -47,13 +50,13 @@ const Booking = () => {
     setBooking(true);
 
     try {
-      await ticketService.create({
+      const ticket = await ticketService.create({
         trip_id: tripId,
         seat_id: selectedSeatId,
       });
 
-      toast.success("Ticket booked successfully");
-      navigate("/my-tickets");
+      setTicketId(ticket.id);
+      toast.success("Ticket booked! Proceed to payment.");
     } catch (err: any) {
       console.log("BOOKING ERROR:", err.response?.data);
 
@@ -66,6 +69,37 @@ const Booking = () => {
     }
   };
 
+const handlePay = async () => {
+  if (!ticketId) {
+    toast.error("No ticket to pay for.");
+    return;
+  }
+
+  setPaying(true);
+
+  try {
+    const payment = await initializePayment(ticketId);
+
+    console.log("PAYMENT RESPONSE:", payment);
+
+    if (!payment.checkout_url) {
+      toast.error("No checkout URL returned.");
+      return;
+    }
+
+    window.location.href = payment.checkout_url;
+  } catch (e: any) {
+    console.log("PAYMENT ERROR:", e.response?.data);
+
+    toast.error(
+      e.response?.data?.detail ||
+      JSON.stringify(e.response?.data) ||
+      "Failed to start payment"
+    );
+  } finally {
+    setPaying(false);
+  }
+};
   if (loading) {
     return (
       <div className="text-center py-20 text-muted-foreground">
@@ -108,9 +142,15 @@ const Booking = () => {
           {selectedSeatId ? "Seat selected" : "No seat selected"}
         </p>
 
-        <Button onClick={handleBook} disabled={booking}>
-          {booking ? "Booking..." : "Confirm Booking"}
-        </Button>
+        {!ticketId ? (
+          <Button onClick={handleBook} disabled={booking}>
+            {booking ? "Booking..." : "Confirm Booking"}
+          </Button>
+        ) : (
+          <Button onClick={handlePay} disabled={paying}>
+            {paying ? "Redirecting..." : "Pay"}
+          </Button>
+        )}
       </div>
     </div>
   );

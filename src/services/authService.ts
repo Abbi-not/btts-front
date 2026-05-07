@@ -30,6 +30,8 @@ export const authService = {
     localStorage.setItem("btts_access", data.access);
     localStorage.setItem("btts_refresh", data.refresh);
     localStorage.setItem("btts_user", JSON.stringify(data.user));
+    localStorage.setItem("access", response.data.access);
+    localStorage.setItem("refresh", response.data.refresh);
 
     return { tokens: data, user: data.user };
   },

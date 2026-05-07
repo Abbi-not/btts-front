@@ -1,9 +1,14 @@
+// src/App.tsx
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+
 import { AuthProvider } from "@/contexts/AuthContext";
+
 import MainLayout from "@/layouts/MainLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
@@ -18,7 +23,7 @@ import Booking from "@/pages/passenger/Booking";
 import MyTickets from "@/pages/passenger/MyTickets";
 import TrackBus from "@/pages/passenger/TrackBus";
 import Feedback from "@/pages/passenger/Feedback";
-import PaymentResult from "@/pages/passenger/PaymentResult"; // ✅ ADD THIS
+import PaymentResult from "@/pages/passenger/PaymentResult";
 
 import DriverDashboard from "@/pages/driver/DriverDashboard";
 
@@ -29,140 +34,152 @@ import ManageTrips from "@/pages/admin/ManageTrips";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route element={<MainLayout />}>
-              <Route index element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
 
-              {/* Passenger */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute roles={["passenger"]}>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/trips" element={<Trips />} />
-              <Route
-                path="/booking/:tripId"
-                element={
-                  <ProtectedRoute roles={["passenger"]}>
-                    <Booking />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/my-tickets"
-                element={
-                  <ProtectedRoute roles={["passenger"]}>
-                    <MyTickets />
-                  </ProtectedRoute>
-                }
-              />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route element={<MainLayout />}>
+                {/* PUBLIC */}
+                <Route index element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              {/* ✅ THIS IS THE CRITICAL ADD */}
-              <Route
-                path="/payment-result"
-                element={
-                  <ProtectedRoute roles={["passenger"]}>
-                    <PaymentResult />
-                  </ProtectedRoute>
-                }
-              />
+                {/* PASSENGER */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute roles={["passenger"]}>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
-              <Route
-                path="/tracking/:tripId"
-                element={
-                  <ProtectedRoute roles={["passenger"]}>
-                    <TrackBus />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/feedback"
-                element={
-                  <ProtectedRoute roles={["passenger"]}>
-                    <Feedback />
-                  </ProtectedRoute>
-                }
-              />
+                <Route path="/trips" element={<Trips />} />
 
-              {/* Driver */}
-              <Route
-                path="/driver/dashboard"
-                element={
-                  <ProtectedRoute roles={["driver"]}>
-                    <DriverDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/driver/track"
-                element={
-                  <ProtectedRoute roles={["driver"]}>
-                    <TrackBus />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/driver/notifications"
-                element={
-                  <ProtectedRoute roles={["driver"]}>
-                    <DriverDashboard />
-                  </ProtectedRoute>
-                }
-              />
+                <Route
+                  path="/booking/:tripId"
+                  element={
+                    <ProtectedRoute roles={["passenger"]}>
+                      <Booking />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Admin */}
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <ProtectedRoute roles={["admin"]}>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/buses"
-                element={
-                  <ProtectedRoute roles={["admin"]}>
-                    <ManageBuses />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/routes"
-                element={
-                  <ProtectedRoute roles={["admin"]}>
-                    <ManageRoutes />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/trips"
-                element={
-                  <ProtectedRoute roles={["admin"]}>
-                    <ManageTrips />
-                  </ProtectedRoute>
-                }
-              />
+                <Route
+                  path="/my-tickets"
+                  element={
+                    <ProtectedRoute roles={["passenger"]}>
+                      <MyTickets />
+                    </ProtectedRoute>
+                  }
+                />
 
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+                <Route
+                  path="/payment-result"
+                  element={
+                    <ProtectedRoute roles={["passenger"]}>
+                      <PaymentResult />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/tracking/:tripId"
+                  element={
+                    <ProtectedRoute roles={["passenger"]}>
+                      <TrackBus />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/feedback"
+                  element={
+                    <ProtectedRoute roles={["passenger"]}>
+                      <Feedback />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* DRIVER */}
+                <Route
+                  path="/driver/dashboard"
+                  element={
+                    <ProtectedRoute roles={["driver"]}>
+                      <DriverDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/driver/track"
+                  element={
+                    <ProtectedRoute roles={["driver"]}>
+                      <TrackBus />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/driver/notifications"
+                  element={
+                    <ProtectedRoute roles={["driver"]}>
+                      <DriverDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* ADMIN */}
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/admin/buses"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <ManageBuses />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/admin/routes"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <ManageRoutes />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/admin/trips"
+                  element={
+                    <ProtectedRoute roles={["admin"]}>
+                      <ManageTrips />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
